@@ -28,8 +28,7 @@ spec:
     spec:
       containers:
         - name: frontend
-          image: 514191340653.dkr.ecr.ap-southeast-2.amazonaws.com/frontend:latest
+          image: btdevopsacr.azurecr.io/frontend:latest
           imagePullPolicy: Always
           ports:
             - containerPort: 3000
-
