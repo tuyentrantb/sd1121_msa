@@ -5,49 +5,73 @@ trigger:
 
 variables:
   - imageName: "ubuntu-latest"
-  - FRONTEND_APP: "frontend"
-  - BACKEND_APP: "backend"
-  - ACR_URI: "514191340653.dkr.ecr.ap-southeast-2.amazonaws.com" # change
-  - IMAGE_TAG: "$(Build.BuildNumber)"
-  - GIT_REPO: "https://github.com/tuyentrantb/sd1121_msa"
-  - REPO_NAME: "sd1121_msa"
+  - group: "sd1121-msa-var"
+  - tag: "$(Build.BuildId)"
+  - imageFrontend: "frontend"
+  - imageBackend: "backend"
+  - acrName: "btdevopsacr"
+  - gitRepoUrl: "https://github.com/tuyentrantb/sd1121_msa"
+  - gitBranch: "main"
+  - azureSubscription: "practicalDevopsServiceConnection"
+  - resourceGroupName: "practicaldevops"
+  - aksClusterName: "btdevops-aks"
+  - aksNamespace: "btdevops"
 
 # Pool build
 pool:
   vmImage: $(imageName)
 
-resources:
-  repositories:
-    - repository: sd1121_msa
-      type: github
-      name: tuyentrantb/sd1121_msa
-      ref: main
-
 stages:
-  - stage: Docker Build Frontend
+  - stage: Docker Build and Push Image
     jobs:
       - job: Build
         steps:
+          - task: AzureCLI@2
+            inputs:
+              azureSubscription: $(azureSubscription)
+              scriptType: "bash"
+              scriptLocation: "inlineScript"
+              inlineScript: |
+                az acr login --name $(acrName)
+                git clone --branch $(gitBranch) $(gitRepoUrl) repo
+
+                # Build Docker image for frontend
+                cd repo/src/$(imageFrontend)
+                docker build -t $(acrName).azurecr.io/$(imageFrontend):$(tag) .
+                docker push $(acrName).azurecr.io/$(imageFrontend):$(tag)
+
+                # Build Docker image for backend
+                cd ../src/$(imageBackend)
+                docker build -t $(acrName).azurecr.io/$(imageBackend):$(tag) .
+                docker push $(acrName).azurecr.io/$(imageBackend):$(tag)
+
+              addSpnToEnvironment: true
+
           - script: |
-              sh "az acr get-credentials -g practical-devops | docker login --username AZ --password-stdin $(ACR_URI)"
-              sh "docker build -t $(FRONTEND_APP):$(IMAGE_TAG) src/frontend/"
-              sh "docker tag $(FRONTEND_APP):$(IMAGE_TAG) $(ACR_URI)/$(FRONTEND_APP):latest"
-              sh "docker push $(ACR_URI)/$(FRONTEND_APP):latest"
-  - stage: Docker Build Backend
-    jobs:
-      - job: Build
-        steps:
-          - script: |
-              sh "az acr get-credentials -g practical-devops | docker login --username AZ --password-stdin $(ACR_URI)"
-              sh "docker build -t $(BACKEND_APP):$(IMAGE_TAG) src/backend/"
-              sh "docker tag $(BACKEND_APP):$(IMAGE_TAG) $(ACR_URI)/$(BACKEND_APP):latest"
-              sh "docker push $(ACR_URI)/$(BACKEND_APP):latest"
-  - stage: Deploy k8s
+              echo "Images pushed to ACR:"
+              echo "$(acrName).azurecr.io/$(imageFrontend):$(tag)"
+              echo "$(acrName).azurecr.io/$(imageBackend):$(tag)"
+            displayName: "Show Image Info"
+  - stage: Deploy to AKS
     jobs:
       - job: Deploy
         steps:
-          - script: |
-              sh "az aks get-credentials -g practical-devops -n sd1121-devops-aks"
-              sh "kubectl apply -f k8s/az/mongodb.yaml"
-              sh "kubectl apply -f k8s/az/backend.yaml"
-              sh "kubectl apply -f k8s/az/frontend.yaml"
+          - task: UsePythonVersion@0
+            inputs:
+              versionSpec: "3.x"
+              addToPath: true
+          - task: AzureCLI@2
+            inputs:
+              azureSubscription: $(azureSubscription)
+              scriptType: "bash"
+              scriptLocation: "inlineScript"
+              inlineScript: |
+                az aks get-credentials --resource-group $(resourceGroupName) --name $(aksClusterName)
+          - task: Kubernetes@1
+            inputs:
+              azureSubscription: $(azureSubscription)
+              azureResourceGroup: $(resourceGroupName)
+              kubernetesCluster: $(aksClusterName)
+              namespace: $(aksNamespace)
+              command: "apply"
+              arguments: "-f $(System.DefaultWorkingDirectory)/k8s/az/"
