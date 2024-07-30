@@ -4,7 +4,6 @@ trigger:
       - main
 
 variables:
-  - imageName: "ubuntu-latest"
   - group: "sd1121-msa-var"
   - tag: "$(Build.BuildId)"
   - imageFrontend: "frontend"
@@ -12,14 +11,15 @@ variables:
   - acrName: "btdevopsacr"
   - gitRepoUrl: "https://github.com/tuyentrantb/sd1121_msa"
   - gitBranch: "main"
-  - azureSubscription: "practicalDevopsServiceConnection"
+  - azureSubscription: azureSubscription
+    value: "practicalDevopsServiceConnection"
   - resourceGroupName: "practicaldevops"
   - aksClusterName: "btdevops-aks"
   - aksNamespace: "btdevops"
 
 # Pool build
 pool:
-  vmImage: $(imageName)
+  vmImage: "ubuntu-latest"
 
 stages:
   - stage: Docker Build and Push Image
