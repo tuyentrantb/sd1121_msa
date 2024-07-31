@@ -22,9 +22,9 @@ pool:
   vmImage: "ubuntu-latest"
 
 stages:
-  - stage: Docker Build and Push Image
-    jobs:
-      - job: Build
+  - stage: Build
+    jobs: 
+      - job: Docker_Build_and_Push_Image
         steps:
           - task: AzureCLI@2
             inputs:
@@ -52,9 +52,9 @@ stages:
               echo "$(acrName).azurecr.io/$(imageFrontend):$(tag)"
               echo "$(acrName).azurecr.io/$(imageBackend):$(tag)"
             displayName: "Show Image Info"
-  - stage: Deploy to AKS
+  - stage: Deploy
     jobs:
-      - job: Deploy
+      - job: Deploy_to_AKS
         steps:
           - task: UsePythonVersion@0
             inputs:
