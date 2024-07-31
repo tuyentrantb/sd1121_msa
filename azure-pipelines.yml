@@ -18,8 +18,8 @@ variables:
   # - aksNamespace: "btdevops"
 
 # Pool build
-pool:
-  vmImage: "ubuntu-latest"
+pool: sd1121-agent-pool
+  #vmImage: "ubuntu-latest"
 
 stages:
   - stage: Build
