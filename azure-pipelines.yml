@@ -22,15 +22,16 @@ stages:
               scriptLocation: "inlineScript"
               inlineScript: |
                 az acr login --name $(acrName)
-                git clone --branch $(gitBranch) $(gitRepoUrl) repo
+                #git clone --branch $(gitBranch) $(gitRepoUrl) repo
 
                 # Build Docker image for frontend
-                cd repo/src/$(imageFrontend)
+                #cd repo/src/$(imageFrontend)
+                cd $(System.DefaultWorkingDirectory)/src/$(imageFrontend)
                 docker build -t $(acrName).azurecr.io/$(imageFrontend):$(tag) .
                 docker push $(acrName).azurecr.io/$(imageFrontend):$(tag)
 
                 # Build Docker image for backend
-                cd ../src/$(imageBackend)
+                cd $(System.DefaultWorkingDirectory)/src/$(imageBackend)
                 docker build -t $(acrName).azurecr.io/$(imageBackend):$(tag) .
                 docker push $(acrName).azurecr.io/$(imageBackend):$(tag)
 
