@@ -5,21 +5,10 @@ trigger:
 
 variables:
   - group: "sd1121-msa-var"
-  # - tag: "$(Build.BuildId)"
-  # - imageFrontend: "frontend"
-  # - imageBackend: "backend"
-  # - acrName: "btdevopsacr"
-  # - gitRepoUrl: "https://github.com/tuyentrantb/sd1121_msa"
-  # - gitBranch: "main"
-  # - azureSubscription: azureSubscription
-  #   value: "practicalDevopsServiceConnection"
-  # - resourceGroupName: "practicaldevops"
-  # - aksClusterName: "btdevops-aks"
-  # - aksNamespace: "btdevops"
 
 # Pool build
-pool: sd1121-agent-pool
-  #vmImage: "ubuntu-latest"
+pool:
+  vmImage: "ubuntu-latest"
 
 stages:
   - stage: Build
