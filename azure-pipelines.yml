@@ -12,7 +12,7 @@ pool:
 
 stages:
   - stage: Build
-    jobs: 
+    jobs:
       - job: Docker_Build_and_Push_Image
         steps:
           - task: AzureCLI@2
@@ -31,6 +31,7 @@ stages:
                 docker push $(acrName).azurecr.io/$(imageFrontend):$(tag)
 
                 # Build Docker image for backend
+                #cd repo/src/$(imageBackend)
                 cd $(System.DefaultWorkingDirectory)/src/$(imageBackend)
                 docker build -t $(acrName).azurecr.io/$(imageBackend):$(tag) .
                 docker push $(acrName).azurecr.io/$(imageBackend):$(tag)
