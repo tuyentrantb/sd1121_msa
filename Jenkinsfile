@@ -4,7 +4,7 @@ pipeline {
         REGION = "ap-southeast-2"
         FRONTEND_APP = "frontend"
         BACKEND_APP = "backend"
-        ECR_URI = "514191340653.dkr.ecr.ap-southeast-2.amazonaws.com" // change
+        ECR_URI = "547215031201.dkr.ecr.ap-southeast-2.amazonaws.com" // change
         IMAGE_TAG = "${BUILD_NUMBER}"
         GIT_REPO = "https://github.com/ducnhientran/sd1121_msa.git"
         REPO_NAME = "sd1121_msa"
