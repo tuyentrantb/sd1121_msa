@@ -77,3 +77,25 @@ spec:
         resources:
           requests:
             storage: "1Gi"
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: manage-storageclasses
+rules:
+  - apiGroups: ["storage.k8s.io"]
+    resources: ["storageclasses"]
+    verbs: ["get", "list", "watch", "create", "delete", "patch", "update"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: bind-storageclass-to-pipeline
+subjects:
+  - kind: ServiceAccount
+    name: btdevops
+    namespace: btdevops
+roleRef:
+  kind: ClusterRole
+  name: manage-storageclasses
+  apiGroup: rbac.authorization.k8s.io
