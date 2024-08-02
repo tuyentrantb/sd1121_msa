@@ -60,6 +60,7 @@ stages:
                 az aks get-credentials --resource-group $(resourceGroupName) --name $(aksClusterName)
           - task: Kubernetes@1
             inputs:
+              kubernetesServiceEndpoint: $(kubernetesServiceEndpoint)
               azureSubscription: $(azureSubscription)
               azureResourceGroup: $(resourceGroupName)
               kubernetesCluster: $(aksClusterName)
