@@ -58,19 +58,6 @@ stages:
               scriptLocation: "inlineScript"
               inlineScript: |
                 az aks get-credentials --resource-group $(resourceGroupName) --name $(aksClusterName)
-          - task: Kubernetes@1
-            inputs:
-              # kubernetesServiceEndpoint: $(kubernetesServiceEndpoint)
-              # azureSubscription: $(azureSubscription)
-              # azureResourceGroup: $(resourceGroupName)
-              # kubernetesCluster: $(aksClusterName)
-              # namespace: $(aksNamespace)
-              # command: "apply"
-              # arguments: "-f $(System.DefaultWorkingDirectory)/k8s/az/"
-              azureSubscription: $(azureSubscription)
-              scriptType: "bash"
-              scriptLocation: "inlineScript"
-              inlineScript: |
                 kubectl config set-context --current --namespace $(aksNamespace)
                 kubectl apply -f $(System.DefaultWorkingDirectory)/k8s/az/mongodb.yaml
                 kubectl apply -f $(System.DefaultWorkingDirectory)/k8s/az/backend.yaml
